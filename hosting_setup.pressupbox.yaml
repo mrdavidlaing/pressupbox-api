@@ -1,0 +1,10 @@
+# Hosting setup config for PressUpBox.  Written in YAML (http://www.yaml.org/refcard.html)
+defaults: &defaults
+  type: "default"
+  admin_ips:  #Use ip2cidr.com to convert IP range into CIDR notation
+    - "127.0.0.1/32"
+    - "33.33.33.1/32"
+sites:
+  - <<: *defaults
+    server_name: "app_container1.pressupbox.test"
+    web_root: "pressupbox-api/public_html"
