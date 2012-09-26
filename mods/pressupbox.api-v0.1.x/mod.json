@@ -1,0 +1,4 @@
+{
+    "main": "api.js",
+    "auto-redeploy":true 
+}
