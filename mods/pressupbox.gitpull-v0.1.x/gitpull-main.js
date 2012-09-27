@@ -30,7 +30,7 @@ shell_exec('git pull --git-dir $git_wc/.git');
   	message: "issued git pull on wc for " + message.github_repo + "@" + message.ref
   };
   replier(reply);
-}
+};
 
 eb.registerHandler(address, handler);
 logger.info("[pressupbox.gitpull-v0.1.x] Listening for eventBus messages on: " + address);
