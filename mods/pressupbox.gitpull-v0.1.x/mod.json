@@ -1,4 +1,5 @@
 {
     "main": "gitpull-main.js",
-    "auto-redeploy":true 
+    "auto-redeploy":true,
+    "worker":true 
 }

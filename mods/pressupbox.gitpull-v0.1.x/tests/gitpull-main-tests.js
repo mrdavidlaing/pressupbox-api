@@ -17,6 +17,9 @@ function testExecuteGitPullOnCorrectRepo() {
 	};
 	
 	eb.send('pressupbox.gitpull', msg, function(reply) {
+
+		logger.info("reply to msg: " + JSON.stringify(msg) + " to topic: pressupbox.gitpull is: " + JSON.stringify(reply));
+		
 		tu.azzert(reply.status === 'ok');
 		tu.azzert(reply.message === 'Executed mockGitRepo1-master/git pull');
 		tu.testComplete();
