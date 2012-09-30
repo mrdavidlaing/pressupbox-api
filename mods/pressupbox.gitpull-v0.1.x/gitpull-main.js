@@ -1,4 +1,5 @@
 load('vertx.js');
+load('runCommand.js');
 
 var eb = vertx.eventBus;
 var logger = vertx.logger;
@@ -19,32 +20,6 @@ function fileContains(path, needle) {
 	return false;
 }
 
-/*
- * Execute cmdLine synchronously from workingDirectory.
- * Will kill cmdLine of runs for more than timeoutInMs milliseconds
- * Returns { exitValue: <cmdLine exit value>, output: <what was written to stdOut + stdErr by cmdLine> }
- * 
- * Requires: lib/commons-exec-1.1.jar (http://commons.apache.org/exec/)
- */
-function runCommand(command, workingDirectory, timeoutInMs) {
-	
-	var executor = new org.apache.commons.exec.DefaultExecutor();
-	var cmdLine = org.apache.commons.exec.CommandLine.parse(command);
-	
-	executor.setWorkingDirectory(new java.io.File(workingDirectory));
-	
-	var watchdog = new org.apache.commons.exec.ExecuteWatchdog(timeoutInMs);
-	executor.setWatchdog(watchdog);
-	
-	var outputStream = new java.io.ByteArrayOutputStream();
-	var streamHandler = new  org.apache.commons.exec.PumpStreamHandler(outputStream);
-	executor.setStreamHandler(streamHandler);
-    
-	var exitValue = executor.execute(cmdLine);
-	
-	return { "exitValue": exitValue, "output": outputStream.toString() };
-}
-
 var handler = function(message, replier) {
 	logger.info('[pressupbox.gitpull-v0.1.x] Received message '
 			+ JSON.stringify(message));
@@ -57,7 +32,7 @@ var handler = function(message, replier) {
 				if (endsWith(children[i], ".git")) {
 					if (fileContains(children[i] + "/config", github_repo)
 							&& fileContains(children[i] + "/HEAD", branch_ref)) {
-						return children[i].replace("/.git", "");
+						return children[i];
 					};
 				} else {
 					gitRepo = findGitRepo(children[i], github_repo, branch_ref);
@@ -67,11 +42,10 @@ var handler = function(message, replier) {
 		return gitRepo;
 	};
 
-	var repoPath = findGitRepo(config.gitReposParentFolder,
-			message.github_repo, message.ref);
-	logger.info(repoPath);
+	var repoPath = findGitRepo(config.gitReposParentFolder,	message.github_repo, message.ref);
+	var workingPath = repoPath.replace('/.git','');
 	
-	var gitOutput = runCommand("git pull", repoPath, COMMAND_EXEC_TIMEOUT_MS);
+	var gitOutput = runCommand("git --git-dir \""+repoPath+"\" --work-tree \""+workingPath+"\" pull", './', COMMAND_EXEC_TIMEOUT_MS);
 	
 	var status = gitOutput.exitValue == 0 ? "ok" : "error";
 	replier({

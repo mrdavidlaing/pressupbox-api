@@ -1,2 +1,0 @@
-#!/bin/bash
-echo "Executed mockGitRepo2-master/git $1"
